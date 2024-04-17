@@ -98,7 +98,7 @@ def SubmitData():
 def UpdateContact():
     print("printing your data!")
     selectedRecord = getData()
-    mem_id = selectedRecord[0]
+    member_id = selectedRecord[0]
     # Check if UpdateWindow exists and destroy it before creating a new one
     
     global UpdateWindow
@@ -137,86 +137,88 @@ def UpdateContact():
 # ===================FRAMES==============================
     FormTitle = Frame(UpdateWindow)
     FormTitle.pack(side=TOP)
-    ContactForm = Frame(UpdateWindow)
-    ContactForm.pack(side=TOP, pady=10)
+    ContactUpdateForm = Frame(UpdateWindow)
+    ContactUpdateForm.pack(side=TOP, pady=10)
 
     # ===================LABELS===============================
 
     lbl_title = Label(FormTitle, text="Update Existing Record", font=('arial bold italic', 25), bg="Sky blue", width=400)
     lbl_title.pack(fill=X)
-    lbl_firstname = Label(ContactForm, text="First Name", font=('times', 20), bd=5)
+    lbl_firstname = Label(ContactUpdateForm, text="First Name", font=('times', 20), bd=5)
     lbl_firstname.grid(row=0, sticky=W)
-    lbl_lastname = Label(ContactForm, text="Last Name", font=('times', 20), bd=5)
+    lbl_lastname = Label(ContactUpdateForm, text="Last Name", font=('times', 20), bd=5)
     lbl_lastname.grid(row=1, sticky=W)
-    lbl_gender = Label(ContactForm, text="Gender", font=('times', 20), bd=5)
+    lbl_gender = Label(ContactUpdateForm, text="Gender", font=('times', 20), bd=5)
     lbl_gender.grid(row=2, sticky=W)
-    lbl_age = Label(ContactForm, text="Age", font=('times', 20), bd=5)
+    lbl_age = Label(ContactUpdateForm, text="Age", font=('times', 20), bd=5)
     lbl_age.grid(row=3, sticky=W)
-    lbl_address_unit = Label(ContactForm, text="Unit Number", font=('times', 20), bd=5)
+    lbl_address_unit = Label(ContactUpdateForm, text="Unit Number", font=('times', 20), bd=5)
     lbl_address_unit.grid(row=4, sticky=W)
-    lbl_address_civic = Label(ContactForm, text="Civic Number", font=('times', 20), bd=5)
+    lbl_address_civic = Label(ContactUpdateForm, text="Civic Number", font=('times', 20), bd=5)
     lbl_address_civic.grid(row=5, sticky=W)
-    lbl_address_street = Label(ContactForm, text="Street", font=('times', 20), bd=5)
+    lbl_address_street = Label(ContactUpdateForm, text="Street", font=('times', 20), bd=5)
     lbl_address_street.grid(row=6, sticky=W)
-    lbl_address_city = Label(ContactForm, text="City", font=('times', 20), bd=5)
+    lbl_address_city = Label(ContactUpdateForm, text="City", font=('times', 20), bd=5)
     lbl_address_city.grid(row=7, sticky=W)
-    lbl_address_province = Label(ContactForm, text="Province", font=('times', 20), bd=5)
+    lbl_address_province = Label(ContactUpdateForm, text="Province", font=('times', 20), bd=5)
     lbl_address_province.grid(row=8, sticky=W)
-    lbl_address_postal_code = Label(ContactForm, text="Postal Code", font=('times', 20), bd=5)
+    lbl_address_postal_code = Label(ContactUpdateForm, text="Postal Code", font=('times', 20), bd=5)
     lbl_address_postal_code.grid(row=9, sticky=W)
-    lbl_phone = Label(ContactForm, text="Phone", font=('times', 20), bd=5)
+    lbl_phone = Label(ContactUpdateForm, text="Phone", font=('times', 20), bd=5)
     lbl_phone.grid(row=10, sticky=W)
-    lbl_email = Label(ContactForm, text="Email", font=('times', 20), bd=5)
+    lbl_email = Label(ContactUpdateForm, text="Email", font=('times', 20), bd=5)
     lbl_email.grid(row=11, sticky=W)
-    lbl_website = Label(ContactForm, text="Website", font=('times', 20), bd=5)
+    lbl_website = Label(ContactUpdateForm, text="Website", font=('times', 20), bd=5)
     lbl_website.grid(row=12, sticky=W)
 
     # ===================ENTRY===============================
-    firstname = Entry(ContactForm, textvariable=FIRSTNAME, font=('times', 17))
+    firstname = Entry(ContactUpdateForm, textvariable=FIRSTNAME, font=('times', 17))
     firstname.grid(row=0, column=1)
-    lastname = Entry(ContactForm, textvariable=LASTNAME, font=('times', 17))
+    lastname = Entry(ContactUpdateForm, textvariable=LASTNAME, font=('times', 17))
     lastname.grid(row=1, column=1)
-    Radiobutton(ContactForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1, sticky=W)
-    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=1, sticky=E)
-    age = Entry(ContactForm, textvariable=AGE, font=('times', 17))
+    Radiobutton(ContactUpdateForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1, sticky=W)
+    Radiobutton(ContactUpdateForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=1, sticky=E)
+    age = Entry(ContactUpdateForm, textvariable=AGE, font=('times', 17))
     age.grid(row=3, column=1)
-    address_unit = Entry(ContactForm, textvariable=ADDRESS_UNIT, font=('times', 17))
+    address_unit = Entry(ContactUpdateForm, textvariable=ADDRESS_UNIT, font=('times', 17))
     address_unit.grid(row=4, column=1)
-    address_civic = Entry(ContactForm, textvariable=ADDRESS_CIVIC, font=('times', 17))
+    address_civic = Entry(ContactUpdateForm, textvariable=ADDRESS_CIVIC, font=('times', 17))
     address_civic.grid(row=5, column=1)
-    address_street = Entry(ContactForm, textvariable=ADDRESS_STREET, font=('times', 17))
+    address_street = Entry(ContactUpdateForm, textvariable=ADDRESS_STREET, font=('times', 17))
     address_street.grid(row=6, column=1)
-    address_city = Entry(ContactForm, textvariable=ADDRESS_CITY, font=('times', 17))
+    address_city = Entry(ContactUpdateForm, textvariable=ADDRESS_CITY, font=('times', 17))
     address_city.grid(row=7, column=1)
-    address_province = Entry(ContactForm, textvariable=ADDRESS_PROVINCE, font=('times', 17))
+    address_province = Entry(ContactUpdateForm, textvariable=ADDRESS_PROVINCE, font=('times', 17))
     address_province.grid(row=8, column=1)
-    address_postal_code = Entry(ContactForm, textvariable=ADDRESS_POSTAL_CODE, font=('times', 17))
+    address_postal_code = Entry(ContactUpdateForm, textvariable=ADDRESS_POSTAL_CODE, font=('times', 17))
     address_postal_code.grid(row=9, column=1)
-    phone = Entry(ContactForm, textvariable=PHONE, font=('times', 17))
+    phone = Entry(ContactUpdateForm, textvariable=PHONE, font=('times', 17))
     phone.grid(row=10, column=1)
-    email = Entry(ContactForm, textvariable=EMAIL, font=('times', 17))
+    email = Entry(ContactUpdateForm, textvariable=EMAIL, font=('times', 17))
     email.grid(row=11, column=1)
-    website = Entry(ContactForm, textvariable=WEBSITE, font=('times', 17))
+    website = Entry(ContactUpdateForm, textvariable=WEBSITE, font=('times', 17))
     website.grid(row=12, column=1)
-    
-    # Update entry fields with selected item values
-    entry_firstname.insert(0, selectedRecord[1])
-    # Update other entry fields similarly
 
+    
     # Button to update data
-    btn_update = Button(UpdateWindow, text="Update", font=('arial bold italic', 10), width=10, bg="Sky blue", command=lambda: SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic, entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code, entry_phone, entry_email, entry_website))
+    btn_update = Button(ContactUpdateForm, text="Update", font=('arial bold italic', 10), width=10, bg="Sky blue", command=lambda: SubmitUpdatedData(firstname, lastname, GENDER, age, address_unit, address_civic, address_street, address_city, address_province, address_postal_code, phone, email, website, member_id))
     btn_update.grid(row=14, columnspan=2, pady=10)
 
-def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic, entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code, entry_phone, entry_email, entry_website):
-    global mem_id
+
+def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic, entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code, entry_phone, entry_email, entry_website, member_id):
+    
+   
+    print(str(entry_firstname.get()), str(entry_lastname.get()), str(entry_gender.get()), int(entry_age.get()), str(entry_address_unit.get()),
+            str(entry_address_civic.get()), str(entry_address_street.get()), str(entry_address_city.get()), str(entry_address_province.get()),
+            str(entry_address_postal_code.get()), str(entry_phone.get()), str(entry_email.get()), str(entry_website.get()), member_id)
     conn = sqlite3.connect("pythontut.db")
     cursor = conn.cursor()
     cursor.execute(
-        "UPDATE `member` SET firstname=?, lastname=?, gender=?, age=?, address_unit=?, address_civic=?, address_street=?, address_city=?, address_province=?, address_postal_code=?, phone=?, email=?, website=? WHERE mem_id=?",
+         "UPDATE `member` SET firstname=?, lastname=?, gender=?, age=?, address_unit=?, address_civic=?, address_street=?, address_city=?, address_province=?, address_postal_code=?, phone=?, email=?, website=? WHERE mem_id=?",
         (
             str(entry_firstname.get()), str(entry_lastname.get()), str(entry_gender.get()), int(entry_age.get()), str(entry_address_unit.get()),
             str(entry_address_civic.get()), str(entry_address_street.get()), str(entry_address_city.get()), str(entry_address_province.get()),
-            str(entry_address_postal_code.get()), str(entry_phone.get()), str(entry_email.get()), str(entry_website.get()), mem_id
+            str(entry_address_postal_code.get()), str(entry_phone.get()), str(entry_email.get()), str(entry_website.get()), member_id
         )
     )
     conn.commit()
@@ -295,7 +297,6 @@ def getData():
     cursor.close()
     conn.close()
 
-    print (selected_contact_data)
     return selected_contact_data
 
 def AddNewWindow():
