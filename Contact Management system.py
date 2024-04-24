@@ -4,6 +4,12 @@ import tkinter.ttk as ttk
 import tkinter.messagebox as tkMessageBox
 import re
 
+def disable_event():
+   pass
+
+def Logout():
+    root.destroy()
+
 def register_user():
     username = new_username_entry.get()
     password = new_password_entry.get()
@@ -48,6 +54,7 @@ def show_login_form():
 
 # Create main window
 root_main = Tk()
+root_main.protocol("WM_DELETE_WINDOW", disable_event)
 root_main.title("Login or Register")
 screen_width = root_main.winfo_screenwidth()
 screen_height = root_main.winfo_screenheight()
@@ -118,7 +125,7 @@ root_main.mainloop()
 
 root = Tk()
 root.title("CONTACT LIST")
-
+root.protocol("WM_DELETE_WINDOW", disable_event)
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
@@ -421,7 +428,6 @@ def UpdateContact():
     btn_update.grid(row=14, columnspan=2, pady=10)
 
 
-
 def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic,
                       entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code,
                       entry_phone, entry_email, entry_website, member_id):
@@ -597,7 +603,8 @@ def AddNewWindow():
     lastname.grid(row=1, column=1)
     Radiobutton(ContactForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1,
                                                                                                   sticky=W)
-    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).deselect()
+    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=2,
+                                                                                                  sticky=W)
 
     age = Entry(ContactForm, textvariable=AGE, font=('times', 17))
     age.grid(row=3, column=1)
@@ -624,6 +631,10 @@ def AddNewWindow():
     btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
                         command=SubmitData)
     btn_addcon.grid(row=13, columnspan=2, pady=10)
+    btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
+                        command=SubmitData)
+    btn_addcon.grid(row=13, columnspan=2, pady=10)
+
 
 def updateData():
     global mem_id
@@ -752,12 +763,14 @@ lbl_title.pack(fill=X)
 #
 # =============BUTTONS=====================================
 
-btn_add = Button(MidLeft, text="ADD NEW", font=('arial bold italic', 13), bg="green", command=AddNewWindow)
+btn_add = Button(MidLeft, text="ADD NEW", font=('Times New Roman italic', 13), bg="green", command=AddNewWindow)
 btn_add.pack(side=BOTTOM)
-btn_delete = Button(MidRight, text="DELETE", font=('arial bold italic', 13), bg="red", command=DeleteData)
+btn_delete = Button(MidRight, text="DELETE", font=('Times New Roman italic', 13), bg="red", command=DeleteData)
 btn_delete.pack(side=BOTTOM)
-btn_update = Button(Mid, text="UPDATE", font=('arial bold italic', 13), bg="blue", command=UpdateContact)
+btn_update = Button(Mid, text="UPDATE", font=('Times New Roman italic', 13), bg="yellow", command=UpdateContact)
 btn_update.pack(side=BOTTOM)
+logout_button = Button(Top, text="LOGOUT",font=('Times New Roman italic', 9), bg="orange", command=Logout)
+logout_button.pack(side=RIGHT)
 
 
 
