@@ -2,16 +2,127 @@ from tkinter import *
 import sqlite3
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkMessageBox
+import re
+
+def register_user():
+    username = new_username_entry.get()
+    password = new_password_entry.get()
+
+    # Check if username already exists
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    if cursor.fetchone() is not None:
+        tkMessageBox.showerror("Error", "Username already exists")
+        return
+
+    # Insert new user into the database
+    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+    conn.commit()
+    tkMessageBox.showinfo("Success", "User registered successfully")
+
+# Function to log in existing user
+def login_user():
+    username = username_entry.get()
+    password = password_entry.get()
+
+    # Check if username exists
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+
+    if user is None:
+        tkMessageBox.showerror("Error", "Invalid username")
+    elif user[2] != password:
+        tkMessageBox.showerror("Error", "Invalid password")
+    else:
+        tkMessageBox.showinfo("Success", "Login successful")
+        root_main.destroy()  # Close the current window
+
+# Function to switch to registration form
+def show_register_form():
+    login_frame.pack_forget()
+    register_frame.pack()
+
+# Function to switch to login form
+def show_login_form():
+    register_frame.pack_forget()
+    login_frame.pack()
+
+# Create main window
+root_main = Tk()
+root_main.title("Login or Register")
+screen_width = root_main.winfo_screenwidth()
+screen_height = root_main.winfo_screenheight()
+
+root_main.geometry("%dx%d" % (screen_width,screen_height))
+
+# Frame for login form
+login_frame = Frame(root_main)
+
+# Username label and entry for login
+username_label = Label(login_frame, text="Username:")
+username_label.grid(row=0, column=0, padx=5, pady=5)
+username_entry = Entry(login_frame)
+username_entry.grid(row=0, column=1, padx=5, pady=5)
+
+# Password label and entry for login
+password_label = Label(login_frame, text="Password:")
+password_label.grid(row=1, column=0, padx=5, pady=5)
+password_entry = Entry(login_frame, show="*")
+password_entry.grid(row=1, column=1, padx=5, pady=5)
+
+# Login button
+login_button = Button(login_frame, text="Login", command=login_user)
+login_button.grid(row=2, columnspan=2, padx=5, pady=5)
+
+# Register link
+register_link = Label(login_frame, text="Register", fg="blue", cursor="hand2")
+register_link.grid(row=3, columnspan=2)
+register_link.bind("<Button-1>", lambda e: show_register_form())
+
+# Frame for registration form
+register_frame = Frame(root_main)
+
+# New username label and entry for registration
+new_username_label = Label(register_frame, text="New Username:")
+new_username_label.grid(row=0, column=0, padx=5, pady=5)
+new_username_entry = Entry(register_frame)
+new_username_entry.grid(row=0, column=1, padx=5, pady=5)
+
+# New password label and entry for registration
+new_password_label = Label(register_frame, text="New Password:")
+new_password_label.grid(row=1, column=0, padx=5, pady=5)
+new_password_entry = Entry(register_frame, show="*")
+new_password_entry.grid(row=1, column=1, padx=5, pady=5)
+
+# Register button
+register_button = Button(register_frame, text="Register", command=register_user)
+register_button.grid(row=2, columnspan=2, padx=5, pady=5)
+
+# Login link
+login_link = Label(register_frame, text="Login", fg="blue", cursor="hand2")
+login_link.grid(row=3, columnspan=2)
+login_link.bind("<Button-1>", lambda e: show_login_form())
+
+# Connect to SQLite database
+conn = sqlite3.connect("contactManager.db")
+cursor = conn.cursor()
+
+# Create users table if not exists
+cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
+conn.commit()
+
+# Initially show login form
+show_login_form()
+
+# Run the main event loop
+root_main.mainloop()
 
 root = Tk()
 root.title("CONTACT LIST")
-width = 850
-height = 400
+
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
-root.geometry('850x600')
-root.resizable(True, True)
+root.geometry("%dx%d" % (screen_width,screen_height))
 root.config(bg="white")
 
 # ============================VARIABLES===================================
@@ -45,9 +156,10 @@ entry_phone = None
 entry_email = None
 entry_website = None
 
+
 # ============================METHODS=====================================
 def Database():
-    conn = sqlite3.connect("pythontut.db")
+    conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS `member` (mem_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, gender TEXT, age TEXT, address_unit TEXT, address_civic TEXT, address_street TEXT, address_city TEXT, address_province TEXT, address_postal_code TEXT, phone TEXT, email TEXT, website TEXT)"
@@ -64,43 +176,149 @@ def SubmitData():
     if FIRSTNAME.get() == "" or LASTNAME.get() == "" or GENDER.get() == "" or AGE.get() == "" or ADDRESS_UNIT.get() == "" or ADDRESS_CIVIC.get() == "" or ADDRESS_STREET.get() == "" or ADDRESS_CITY.get() == "" or ADDRESS_PROVINCE.get() == "" or ADDRESS_POSTAL_CODE.get() == "" or PHONE.get() == "" or EMAIL.get() == "" or WEBSITE.get() == "":
         result = tkMessageBox.showwarning('', 'Please Complete The Required Field', icon="warning")
     else:
-        tree.delete(*tree.get_children())
-        conn = sqlite3.connect("pythontut.db")
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO `member` (firstname, lastname, gender, age, address_unit, address_civic, address_street, address_city, address_province, address_postal_code, phone, email, website) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (str(FIRSTNAME.get()), str(LASTNAME.get()), str(GENDER.get()), int(AGE.get()), str(ADDRESS_UNIT.get()),
-             str(ADDRESS_CIVIC.get()), str(ADDRESS_STREET.get()), str(ADDRESS_CITY.get()),
-             str(ADDRESS_PROVINCE.get()), str(ADDRESS_POSTAL_CODE.get()), str(PHONE.get()), str(EMAIL.get()),
-             str(WEBSITE.get())))
-        conn.commit()
-        cursor.execute("SELECT * FROM `member` ORDER BY `lastname` ASC")
-        fetch = cursor.fetchall()
-        for data in fetch:
-            tree.insert('', 'end', values=(data))
-        cursor.close()
-        conn.close()
-        FIRSTNAME.set("")
-        LASTNAME.set("")
-        GENDER.set("")
-        AGE.set("")
-        ADDRESS_UNIT.set("")
-        ADDRESS_CIVIC.set("")
-        ADDRESS_STREET.set("")
-        ADDRESS_CITY.set("")
-        ADDRESS_PROVINCE.set("")
-        ADDRESS_POSTAL_CODE.set("")
-        PHONE.set("")
-        EMAIL.set("")
-        WEBSITE.set("")
 
+
+        if not FIRSTNAME.get().isalpha():
+            tkMessageBox.showwarning('', 'First name should contain only alphabetic characters')
+            return
+
+        # Validate Last Name
+        if not LASTNAME.get().isalpha():
+            tkMessageBox.showwarning('', 'Last name should contain only alphabetic characters')
+            return
+
+        # Validate Gender
+        if GENDER.get() not in ["Male", "Female"]:
+            tkMessageBox.showwarning('', 'Please select a valid gender')
+            return
+
+        # Validate Age
+        try:
+            age = int(AGE.get())
+            if age <= 0:
+                tkMessageBox.showwarning('', 'Age should be a positive integer')
+                return
+        except ValueError:
+            tkMessageBox.showwarning('', 'Age should be a positive integer')
+            return
+
+        # Validate Address Unit
+        '''
+        if not ADDRESS_UNIT.get().isalnum():
+            tkMessageBox.showwarning('', 'Address unit should contain alphanumeric characters')
+            return
+    '''
+        try:
+            unit_number = int(ADDRESS_UNIT.get())
+            if unit_number < 1:
+                tkMessageBox.showwarning('', 'Please enter valid address unit')
+                return
+        except ValueError:
+            tkMessageBox.showwarning('', 'Please enter valid address unit')
+            return
+        # Validate Address Civic
+        '''
+        if not ADDRESS_CIVIC.get().isalnum():
+            tkMessageBox.showwarning('', 'Address civic should contain alphanumeric characters')
+            return
+    '''
+        try:
+            civic_number = int(ADDRESS_CIVIC.get())
+            if civic_number < 1:
+                tkMessageBox.showwarning('', 'Please enter valid civic number')
+                return
+        except ValueError:
+            tkMessageBox.showwarning('', 'Please enter valid civic number')
+            return
+        if not ADDRESS_STREET.get():
+            tkMessageBox.showwarning('', 'Address street should not be empty')
+            return
+
+            # Validate Address City
+        if not ADDRESS_CITY.get().isalpha():
+            tkMessageBox.showwarning('', 'Address city should contain only alphabetic characters')
+            return
+
+            # Validate Address Province
+        if not re.match(r'^[A-Z]{2}$', ADDRESS_PROVINCE.get()):
+            tkMessageBox.showwarning('', 'Address province should contain exactly two capital letters')
+            return
+
+            # Validate Address Postal Code
+        postal_code_pattern = r'^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$'
+        if not re.match(postal_code_pattern, ADDRESS_POSTAL_CODE.get()):
+            tkMessageBox.showwarning('', 'Invalid postal code format. Example: A1A 1A1')
+            return
+
+        # Validate Phone Number
+        phone_pattern = r'^\+1 \(\d{3}\) \d{3}-\d{4}$'
+        if not re.match(phone_pattern, PHONE.get()):
+            tkMessageBox.showwarning('', 'Invalid phone number format. Should be in the format +1 (xxx) xxx-xxxx')
+            return
+
+        # Validate Email Address
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, EMAIL.get()):
+            tkMessageBox.showwarning('', 'Invalid email address')
+            return
+
+        # Validate Website URL
+        website_pattern = r'^(https?://)?(www\.)?([a-zA-Z0-9-]+)\.([a-zA-Z]{2,})(/[a-zA-Z0-9-]+)?$'
+        if not re.match(website_pattern, WEBSITE.get()):
+            tkMessageBox.showwarning('', 'Invalid website URL')
+            return
+
+        saveDataToDatabase()
+
+
+
+def saveDataToDatabase():
+    tree.delete(*tree.get_children())
+    conn = sqlite3.connect("contactManager.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO `member` (firstname, lastname, gender, age, address_unit, address_civic, address_street, address_city, address_province, address_postal_code, phone, email, website) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (str(FIRSTNAME.get()), str(LASTNAME.get()), str(GENDER.get()), int(AGE.get()), str(ADDRESS_UNIT.get()),
+         str(ADDRESS_CIVIC.get()), str(ADDRESS_STREET.get()), str(ADDRESS_CITY.get()),
+         str(ADDRESS_PROVINCE.get()), str(ADDRESS_POSTAL_CODE.get()), str(PHONE.get()), str(EMAIL.get()),
+         str(WEBSITE.get())))
+    conn.commit()
+    cursor.execute("SELECT * FROM `member` ORDER BY `lastname` ASC")
+    fetch = cursor.fetchall()
+    for data in fetch:
+        tree.insert('', 'end', values=(data))
+    cursor.close()
+    conn.close()
+    FIRSTNAME.set("")
+    LASTNAME.set("")
+    GENDER.set("")
+    AGE.set("")
+    ADDRESS_UNIT.set("")
+    ADDRESS_CIVIC.set("")
+    ADDRESS_STREET.set("")
+    ADDRESS_CITY.set("")
+    ADDRESS_PROVINCE.set("")
+    ADDRESS_POSTAL_CODE.set("")
+    PHONE.set("")
+    EMAIL.set("")
+    WEBSITE.set("")
+    global NewWindow
+    if 'NewWindow' in globals() and NewWindow:
+        NewWindow.destroy()
+
+
+def get_selected_item():
+    selected_item = tree.selection()
+    if selected_item:
+        item_text = tree.item(selected_item)['values'][0]
+        return item_text
 
 def UpdateContact():
-    print("printing your data!")
-    selectedRecord = getData()
+    mem_id = get_selected_item()
+    selectedRecord = getData(mem_id)
     member_id = selectedRecord[0]
     # Check if UpdateWindow exists and destroy it before creating a new one
-    
+
     global UpdateWindow
     if 'UpdateWindow' in globals() and UpdateWindow:
         UpdateWindow.destroy()
@@ -122,19 +340,11 @@ def UpdateContact():
     # Create the UpdateWindow and populate it with entry fields and labels
     UpdateWindow = Toplevel()
     UpdateWindow.title("Update Contact")
-    width = 850
-    height = 400
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    x = (screen_width / 2) - (width / 2)
-    y = (screen_height / 2) - (height / 2)
-    UpdateWindow.resizable(True, True)
-    UpdateWindow.geometry("%dx%d+%d+%d" % (width, height, x, y))
+    UpdateWindow.geometry("%dx%d" % (screen_width, screen_height))
 
-    
-
-
-# ===================FRAMES==============================
+    # ===================FRAMES==============================
     FormTitle = Frame(UpdateWindow)
     FormTitle.pack(side=TOP)
     ContactUpdateForm = Frame(UpdateWindow)
@@ -142,7 +352,8 @@ def UpdateContact():
 
     # ===================LABELS===============================
 
-    lbl_title = Label(FormTitle, text="Update Existing Record", font=('arial bold italic', 25), bg="Sky blue", width=400)
+    lbl_title = Label(FormTitle, text="Update Existing Record", font=('arial bold italic', 25), bg="Sky blue",
+                      width=400)
     lbl_title.pack(fill=X)
     lbl_firstname = Label(ContactUpdateForm, text="First Name", font=('times', 20), bd=5)
     lbl_firstname.grid(row=0, sticky=W)
@@ -176,8 +387,11 @@ def UpdateContact():
     firstname.grid(row=0, column=1)
     lastname = Entry(ContactUpdateForm, textvariable=LASTNAME, font=('times', 17))
     lastname.grid(row=1, column=1)
-    Radiobutton(ContactUpdateForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1, sticky=W)
-    Radiobutton(ContactUpdateForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=1, sticky=E)
+    Radiobutton(ContactUpdateForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1,
+                                                                                                        sticky=W)
+    Radiobutton(ContactUpdateForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2,
+                                                                                                            column=1,
+                                                                                                            sticky=E)
     age = Entry(ContactUpdateForm, textvariable=AGE, font=('times', 17))
     age.grid(row=3, column=1)
     address_unit = Entry(ContactUpdateForm, textvariable=ADDRESS_UNIT, font=('times', 17))
@@ -199,34 +413,46 @@ def UpdateContact():
     website = Entry(ContactUpdateForm, textvariable=WEBSITE, font=('times', 17))
     website.grid(row=12, column=1)
 
-    
     # Button to update data
-    btn_update = Button(ContactUpdateForm, text="Update", font=('arial bold italic', 10), width=10, bg="Sky blue", command=lambda: SubmitUpdatedData(firstname, lastname, GENDER, age, address_unit, address_civic, address_street, address_city, address_province, address_postal_code, phone, email, website, member_id))
+    btn_update = Button(ContactUpdateForm, text="Update", font=('arial bold italic', 10), width=10, bg="Sky blue",
+                        command=lambda: SubmitUpdatedData(firstname, lastname, GENDER, age, address_unit, address_civic,
+                                                          address_street, address_city, address_province,
+                                                          address_postal_code, phone, email, website, member_id))
     btn_update.grid(row=14, columnspan=2, pady=10)
 
 
-def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic, entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code, entry_phone, entry_email, entry_website, member_id):
-    
-   
-    print(str(entry_firstname.get()), str(entry_lastname.get()), str(entry_gender.get()), int(entry_age.get()), str(entry_address_unit.get()),
-            str(entry_address_civic.get()), str(entry_address_street.get()), str(entry_address_city.get()), str(entry_address_province.get()),
-            str(entry_address_postal_code.get()), str(entry_phone.get()), str(entry_email.get()), str(entry_website.get()), member_id)
-    conn = sqlite3.connect("pythontut.db")
+
+def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic,
+                      entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code,
+                      entry_phone, entry_email, entry_website, member_id):
+    tree.delete(*tree.get_children())
+    conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
     cursor.execute(
-         "UPDATE `member` SET firstname=?, lastname=?, gender=?, age=?, address_unit=?, address_civic=?, address_street=?, address_city=?, address_province=?, address_postal_code=?, phone=?, email=?, website=? WHERE mem_id=?",
+        "UPDATE `member` SET firstname=?, lastname=?, gender=?, age=?, address_unit=?, address_civic=?, address_street=?, address_city=?, address_province=?, address_postal_code=?, phone=?, email=?, website=? WHERE mem_id=?",
         (
-            str(entry_firstname.get()), str(entry_lastname.get()), str(entry_gender.get()), int(entry_age.get()), str(entry_address_unit.get()),
-            str(entry_address_civic.get()), str(entry_address_street.get()), str(entry_address_city.get()), str(entry_address_province.get()),
-            str(entry_address_postal_code.get()), str(entry_phone.get()), str(entry_email.get()), str(entry_website.get()), member_id
+            str(entry_firstname.get()), str(entry_lastname.get()), str(entry_gender.get()), int(entry_age.get()),
+            str(entry_address_unit.get()),
+            str(entry_address_civic.get()), str(entry_address_street.get()), str(entry_address_city.get()),
+            str(entry_address_province.get()),
+            str(entry_address_postal_code.get()), str(entry_phone.get()), str(entry_email.get()),
+            str(entry_website.get()), member_id
         )
     )
     conn.commit()
+    cursor.execute("SELECT * FROM `member` ORDER BY `lastname` ASC")
+    fetch = cursor.fetchall()
+    for data in fetch:
+        tree.insert('', 'end', values=(data))
     cursor.close()
     conn.close()
     tkMessageBox.showinfo('', 'Contact updated successfully!')
+    global UpdateWindow
+    if 'UpdateWindow' in globals() and UpdateWindow:
+        UpdateWindow.destroy()
 
-def OnSelected(event):
+
+def OnSelected():
     global mem_id
     curItem = tree.focus()
     contents = (tree.item(curItem))
@@ -270,38 +496,45 @@ def DeleteData():
             contents = (tree.item(curItem))
             selecteditem = contents['values']
             tree.delete(curItem)
-            conn = sqlite3.connect("pythontut.db")
+            conn = sqlite3.connect("contactManager.db")
             cursor = conn.cursor()
             cursor.execute("DELETE FROM `member` WHERE `mem_id` = %d" % selecteditem[0])
             conn.commit()
             cursor.close()
             conn.close()
 
-def getData():
+
+def getData(mem_id):
     # Replace this select command with hardcoded values for now
     # In real implementation, you'll use the selected contact's ID to fetch data
-    selected_contact_id = 1  # Example ID
+    #selected_contact_id = 1  # Example ID
     select_query = "SELECT * FROM `member` WHERE mem_id = ?"
-    
+
     # Open a database connection
-    conn = sqlite3.connect("pythontut.db")
+    conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
-    
+
     # Execute the select query
-    cursor.execute(select_query, (selected_contact_id,))
-    
+    cursor.execute(select_query, (mem_id,))
+
     # Fetch the result
     selected_contact_data = cursor.fetchone()
-    
+
     # Close cursor and connection
     cursor.close()
     conn.close()
 
     return selected_contact_data
 
+
 def AddNewWindow():
     global mem_id
     mem_id = None  # Reset mem_id when adding a new contact
+
+    global NewWindow
+    if 'NewWindow' in globals() and NewWindow:
+        NewWindow.destroy()
+
     FIRSTNAME.set("")
     LASTNAME.set("")
     GENDER.set("")
@@ -316,17 +549,10 @@ def AddNewWindow():
     EMAIL.set("")
     WEBSITE.set("")
     NewWindow = Toplevel()
-    NewWindow.title("Contact List")
-    width = 850
-    height = 600
+    NewWindow.title("Add New Contact")
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    x = ((screen_width / 2)) - (width /2)
-    y = ((screen_height / 2) ) - (height / 2)
-    NewWindow.resizable(True, True)
-    NewWindow.geometry("%dx%d+%d+%d" % (width, height, x, y))
-    if 'UpdateWindow' in globals():
-        UpdateWindow.destroy()
+    NewWindow.geometry("%dx%d" % (screen_width, screen_height))
 
     # ===================FRAMES==============================
     FormTitle = Frame(NewWindow)
@@ -369,8 +595,10 @@ def AddNewWindow():
     firstname.grid(row=0, column=1)
     lastname = Entry(ContactForm, textvariable=LASTNAME, font=('times', 17))
     lastname.grid(row=1, column=1)
-    Radiobutton(ContactForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1, sticky=W)
-    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=1, sticky=E)
+    Radiobutton(ContactForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1,
+                                                                                                  sticky=W)
+    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).deselect()
+
     age = Entry(ContactForm, textvariable=AGE, font=('times', 17))
     age.grid(row=3, column=1)
     address_unit = Entry(ContactForm, textvariable=ADDRESS_UNIT, font=('times', 17))
@@ -393,8 +621,6 @@ def AddNewWindow():
     website.grid(row=12, column=1)
 
     # ==================BUTTONS==============================
-    btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg= "Sky blue", command=SubmitData)
-    btn_addcon.grid(row=13, columnspan=2, pady=10)
     btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
                         command=SubmitData)
     btn_addcon.grid(row=13, columnspan=2, pady=10)
@@ -417,14 +643,9 @@ def updateData():
     WEBSITE.set("")
     NewWindow = Toplevel()
     NewWindow.title("updateData")
-    width = 850
-    height = 600
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
-    x = ((screen_width / 2)) - (width /2)
-    y = ((screen_height / 2) ) - (height / 2)
-    NewWindow.resizable(True, True)
-    NewWindow.geometry("%dx%d+%d+%d" % (width, height, x, y))
+    NewWindow.geometry("%dx%d" % (screen_width, screen_height))
     if 'UpdateWindow' in globals():
         UpdateWindow.destroy()
 
@@ -469,8 +690,10 @@ def updateData():
     firstname.grid(row=0, column=1)
     lastname = Entry(ContactForm, textvariable=LASTNAME, font=('times', 17))
     lastname.grid(row=1, column=1)
-    Radiobutton(ContactForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1, sticky=W)
-    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=1, sticky=E)
+    Radiobutton(ContactForm, text="Male", variable=GENDER, value="Male", font=('times', 14)).grid(row=2, column=1,
+                                                                                                  sticky=W)
+    Radiobutton(ContactForm, text="Female", variable=GENDER, value="Female", font=('times', 14)).grid(row=2, column=1,
+                                                                                                      sticky=E)
     age = Entry(ContactForm, textvariable=AGE, font=('times', 17))
     age.grid(row=3, column=1)
     address_unit = Entry(ContactForm, textvariable=ADDRESS_UNIT, font=('times', 17))
@@ -493,19 +716,25 @@ def updateData():
     website.grid(row=12, column=1)
 
     # ==================BUTTONS==============================
-    btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg= "Sky blue", command=SubmitData)
-    btn_addcon.grid(row=13, columnspan=2, pady=10)
     btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
                         command=SubmitData)
     btn_addcon.grid(row=13, columnspan=2, pady=10)
+    #btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
+    #                    command=SubmitData)
+    btn_addcon.grid(row=13, columnspan=2, pady=10)
+
 
 # ============================FRAMES======================================
 Top = Frame(root, width=500, bd=1, relief=SOLID)
 Top.pack(side=TOP)
 Bottom = Frame(root, width=500, bd=1, relief=SOLID)
 Bottom.pack(side=BOTTOM)
-Mid = Frame(root, width=500, bg="white")
-Mid.pack(side=BOTTOM)
+#Mid = Frame(root, width=500, bg="white")
+#Mid.pack(side=BOTTOM)
+Mid = Frame(Bottom, width=100)
+Mid.pack(side=LEFT)
+MidPadding = Frame(Bottom, width=500, bg="white")
+MidPadding.pack(side=LEFT)
 MidLeft = Frame(Bottom, width=100)
 MidLeft.pack(side=LEFT)
 MidLeftPadding = Frame(Bottom, width=500, bg="white")
@@ -515,16 +744,22 @@ MidRight.pack(side=RIGHT)
 TableMargin = Frame(root, width=500)
 TableMargin.pack(side=TOP)
 # ============================LABELS======================================
+
 lbl_title = Label(Top, text="Contact Management System", font=('arial bold italic', 40), bg="Light grey", width=500)
 lbl_title.pack(fill=X)
 
-# ============================BUTTONS=====================================
-btn_add = Button(MidLeft, text="ADD NEW", font=('arial bold italic', 15),  bg="green", command=AddNewWindow)
+# ===============
+#
+# =============BUTTONS=====================================
+
+btn_add = Button(MidLeft, text="ADD NEW", font=('arial bold italic', 13), bg="green", command=AddNewWindow)
 btn_add.pack(side=BOTTOM)
-btn_delete = Button(MidRight, text="DELETE",font=('arial bold italic', 15),  bg="red", command=DeleteData)
+btn_delete = Button(MidRight, text="DELETE", font=('arial bold italic', 13), bg="red", command=DeleteData)
 btn_delete.pack(side=BOTTOM)
-btn_update = Button(Mid, text="UPDATE", font=('arial bold italic', 15),  bg="blue", command=UpdateContact)
+btn_update = Button(Mid, text="UPDATE", font=('arial bold italic', 13), bg="blue", command=UpdateContact)
 btn_update.pack(side=BOTTOM)
+
+
 
 # ============================TABLES======================================
 scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
@@ -572,4 +807,4 @@ tree.bind('<Double-Button-1>', OnSelected)
 # ============================INITIALIZATION==============================
 if __name__ == '__main__':
     Database()
-    root.mainloop()
+    root_main.mainloop()
