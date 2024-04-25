@@ -3,14 +3,20 @@ import sqlite3
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkMessageBox
 import re
+import logging
+
+logger = logging.getLogger()
+logging.basicConfig(format='%(asctime)s %(message)s', filename="ContactManager.log")
 
 def disable_event():
    pass
 
 def Logout():
+    logger.error("Logout function triggered")
     root.destroy()
 
 def register_user():
+    logger.error("Register user function triggered")
     username = new_username_entry.get()
     password = new_password_entry.get()
 
@@ -18,15 +24,18 @@ def register_user():
     cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     if cursor.fetchone() is not None:
         tkMessageBox.showerror("Error", "Username already exists")
+        logger.error("Username already exists")
         return
 
     # Insert new user into the database
     cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
     conn.commit()
     tkMessageBox.showinfo("Success", "User registered successfully")
+    logger.error("User registered successfully")
 
 # Function to log in existing user
 def login_user():
+    logger.error("Login user function triggered")
     username = username_entry.get()
     password = password_entry.get()
 
@@ -36,19 +45,24 @@ def login_user():
 
     if user is None:
         tkMessageBox.showerror("Error", "Invalid username")
+        logger.error("Invalid username")
     elif user[2] != password:
         tkMessageBox.showerror("Error", "Invalid password")
+        logger.error("Invalid password")
     else:
         tkMessageBox.showinfo("Success", "Login successful")
+        logger.error("Login successful")
         root_main.destroy()  # Close the current window
 
 # Function to switch to registration form
 def show_register_form():
+    logger.error("Show register form function triggered")
     login_frame.pack_forget()
     register_frame.pack()
 
 # Function to switch to login form
 def show_login_form():
+    logger.error("Show login form function triggered")
     register_frame.pack_forget()
     login_frame.pack()
 
@@ -166,6 +180,7 @@ entry_website = None
 
 # ============================METHODS=====================================
 def Database():
+    logger.error("Database function triggered")
     conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
     cursor.execute(
@@ -178,25 +193,29 @@ def Database():
     cursor.close()
     conn.close()
 
+    logger.error("Database function executed successfully")
 
 def SubmitData():
+    logger.error("SubmitData function triggered")
     if FIRSTNAME.get() == "" or LASTNAME.get() == "" or GENDER.get() == "" or AGE.get() == "" or ADDRESS_UNIT.get() == "" or ADDRESS_CIVIC.get() == "" or ADDRESS_STREET.get() == "" or ADDRESS_CITY.get() == "" or ADDRESS_PROVINCE.get() == "" or ADDRESS_POSTAL_CODE.get() == "" or PHONE.get() == "" or EMAIL.get() == "" or WEBSITE.get() == "":
         result = tkMessageBox.showwarning('', 'Please Complete The Required Field', icon="warning")
     else:
 
-
         if not FIRSTNAME.get().isalpha():
             tkMessageBox.showwarning('', 'First name should contain only alphabetic characters')
+            logger.error("First name should contain only alphabetic characters")
             return
 
         # Validate Last Name
         if not LASTNAME.get().isalpha():
             tkMessageBox.showwarning('', 'Last name should contain only alphabetic characters')
+            logger.error("Last name should contain only alphabetic characters")
             return
 
         # Validate Gender
         if GENDER.get() not in ["Male", "Female"]:
             tkMessageBox.showwarning('', 'Please select a valid gender')
+            logger.error("Please select a valid gender")
             return
 
         # Validate Age
@@ -204,9 +223,11 @@ def SubmitData():
             age = int(AGE.get())
             if age <= 0:
                 tkMessageBox.showwarning('', 'Age should be a positive integer')
+                logger.error("Age should be a positive integer")
                 return
         except ValueError:
             tkMessageBox.showwarning('', 'Age should be a positive integer')
+            logger.error("Age should be a positive integer")
             return
 
         # Validate Address Unit
@@ -214,72 +235,84 @@ def SubmitData():
         if not ADDRESS_UNIT.get().isalnum():
             tkMessageBox.showwarning('', 'Address unit should contain alphanumeric characters')
             return
-    '''
+        '''
         try:
             unit_number = int(ADDRESS_UNIT.get())
             if unit_number < 1:
                 tkMessageBox.showwarning('', 'Please enter valid address unit')
+                logger.error("Please enter valid address unit")
                 return
         except ValueError:
             tkMessageBox.showwarning('', 'Please enter valid address unit')
+            logger.error("Please enter valid address unit")
             return
         # Validate Address Civic
         '''
         if not ADDRESS_CIVIC.get().isalnum():
             tkMessageBox.showwarning('', 'Address civic should contain alphanumeric characters')
             return
-    '''
+        '''
         try:
             civic_number = int(ADDRESS_CIVIC.get())
             if civic_number < 1:
                 tkMessageBox.showwarning('', 'Please enter valid civic number')
+                logger.error("Please enter valid civic number")
                 return
         except ValueError:
             tkMessageBox.showwarning('', 'Please enter valid civic number')
+            logger.error("Please enter valid civic number")
             return
         if not ADDRESS_STREET.get():
             tkMessageBox.showwarning('', 'Address street should not be empty')
+            logger.error("Address street should not be empty")
             return
 
-            # Validate Address City
+        # Validate Address City
         if not ADDRESS_CITY.get().isalpha():
             tkMessageBox.showwarning('', 'Address city should contain only alphabetic characters')
+            logger.error("Address city should contain only alphabetic characters")
             return
 
-            # Validate Address Province
+        # Validate Address Province
         if not re.match(r'^[A-Z]{2}$', ADDRESS_PROVINCE.get()):
             tkMessageBox.showwarning('', 'Address province should contain exactly two capital letters')
+            logger.error("Address province should contain exactly two capital letters")
             return
 
-            # Validate Address Postal Code
+        # Validate Address Postal Code
         postal_code_pattern = r'^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$'
         if not re.match(postal_code_pattern, ADDRESS_POSTAL_CODE.get()):
             tkMessageBox.showwarning('', 'Invalid postal code format. Example: A1A 1A1')
+            logger.error("Invalid postal code format. Example: A1A 1A1")
             return
 
         # Validate Phone Number
         phone_pattern = r'^\+1 \(\d{3}\) \d{3}-\d{4}$'
         if not re.match(phone_pattern, PHONE.get()):
             tkMessageBox.showwarning('', 'Invalid phone number format. Should be in the format +1 (xxx) xxx-xxxx')
+            logger.error("Invalid phone number format. Should be in the format +1 (xxx) xxx-xxxx")
             return
 
         # Validate Email Address
         email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         if not re.match(email_pattern, EMAIL.get()):
             tkMessageBox.showwarning('', 'Invalid email address')
+            logger.error("Invalid email address")
             return
 
         # Validate Website URL
         website_pattern = r'^(https?://)?(www\.)?([a-zA-Z0-9-]+)\.([a-zA-Z]{2,})(/[a-zA-Z0-9-]+)?$'
         if not re.match(website_pattern, WEBSITE.get()):
             tkMessageBox.showwarning('', 'Invalid website URL')
+            logger.error("Invalid website URL")
             return
 
         saveDataToDatabase()
 
-
+        logger.error("SubmitData function executed successfully")
 
 def saveDataToDatabase():
+    logger.error("saveDataToDatabase function triggered")
     tree.delete(*tree.get_children())
     conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
@@ -313,14 +346,19 @@ def saveDataToDatabase():
     if 'NewWindow' in globals() and NewWindow:
         NewWindow.destroy()
 
+    logger.error("saveDataToDatabase function executed successfully")
+
 
 def get_selected_item():
+    logger.error("get_selected_item function triggered")
     selected_item = tree.selection()
     if selected_item:
         item_text = tree.item(selected_item)['values'][0]
+        logger.error(f"Selected item: {item_text}")
         return item_text
 
 def UpdateContact():
+    logger.error("UpdateContact function triggered")
     mem_id = get_selected_item()
     selectedRecord = getData(mem_id)
     member_id = selectedRecord[0]
@@ -426,11 +464,12 @@ def UpdateContact():
                                                           address_street, address_city, address_province,
                                                           address_postal_code, phone, email, website, member_id))
     btn_update.grid(row=14, columnspan=2, pady=10)
-
+    logger.error("UpdateContact function executed successfully")
 
 def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, entry_address_unit, entry_address_civic,
                       entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code,
                       entry_phone, entry_email, entry_website, member_id):
+    logger.error("SubmitUpdatedData function triggered")
     tree.delete(*tree.get_children())
     conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
@@ -456,9 +495,11 @@ def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, 
     global UpdateWindow
     if 'UpdateWindow' in globals() and UpdateWindow:
         UpdateWindow.destroy()
+    logger.error("SubmitUpdatedData function executed successfully")
 
 
 def OnSelected():
+    logger.error("OnSelected function triggered")
     global mem_id
     curItem = tree.focus()
     contents = (tree.item(curItem))
@@ -490,9 +531,11 @@ def OnSelected():
     PHONE.set(selecteditem[11])
     EMAIL.set(selecteditem[12])
     WEBSITE.set(selecteditem[13])
+    logger.error("OnSelected function executed successfully")
 
 
 def DeleteData():
+    logger.error("DeleteData function triggered")
     if not tree.selection():
         result = tkMessageBox.showwarning('', 'Please Select Something First!', icon="warning")
     else:
@@ -508,11 +551,13 @@ def DeleteData():
             conn.commit()
             cursor.close()
             conn.close()
+    logger.error("DeleteData function executed successfully")
+
 
 
 def getData(mem_id):
-    # Replace this select command with hardcoded values for now
-    # In real implementation, you'll use the selected contact's ID to fetch data
+    logger.error("getData function triggered with mem_id: %s", mem_id)
+
     #selected_contact_id = 1  # Example ID
     select_query = "SELECT * FROM `member` WHERE mem_id = ?"
 
@@ -529,11 +574,12 @@ def getData(mem_id):
     # Close cursor and connection
     cursor.close()
     conn.close()
-
+    logger.error("getData function executed successfully")
     return selected_contact_data
 
 
 def AddNewWindow():
+    logger.error("AddNewWindow function triggered")
     global mem_id
     mem_id = None  # Reset mem_id when adding a new contact
 
@@ -634,9 +680,11 @@ def AddNewWindow():
     btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
                         command=SubmitData)
     btn_addcon.grid(row=13, columnspan=2, pady=10)
+    logger.error("AddNewWindow function executed successfully")
 
 
 def updateData():
+    logger.error("UpdateData function triggered")
     global mem_id
     mem_id = None  # Reset mem_id when adding a new contact
     FIRSTNAME.set("")
@@ -733,6 +781,7 @@ def updateData():
     #btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
     #                    command=SubmitData)
     btn_addcon.grid(row=13, columnspan=2, pady=10)
+    logger.error("updateData function executed successfully")
 
 
 # ============================FRAMES======================================
