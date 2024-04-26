@@ -467,6 +467,115 @@ def SubmitUpdatedData(entry_firstname, entry_lastname, entry_gender, entry_age, 
                       entry_address_street, entry_address_city, entry_address_province, entry_address_postal_code,
                       entry_phone, entry_email, entry_website, member_id):
     logger.error("SubmitUpdatedData function triggered")
+    if entry_firstname.get() == "" or entry_lastname.get() == "" or entry_gender.get() == "" or entry_age.get() == "" or entry_address_unit.get() == "" or entry_address_civic.get() == "" or entry_address_street.get() == "" or entry_address_city.get() == "" or entry_address_province.get() == "" or entry_address_postal_code.get() == "" or entry_phone.get() == "" or entry_email.get() == "" or entry_website.get() == "":
+        result = tkMessageBox.showwarning('', 'Please Complete The Required Field', icon="warning")
+    else:
+
+        if not entry_firstname.get().isalpha():
+            tkMessageBox.showwarning('', 'First name should contain only alphabetic characters')
+            logger.error("First name should contain only alphabetic characters")
+            return
+
+        # Validate Last Name
+        if not entry_lastname.get().isalpha():
+            tkMessageBox.showwarning('', 'Last name should contain only alphabetic characters')
+            logger.error("Last name should contain only alphabetic characters")
+            return
+
+        # Validate entry_gender
+        if entry_gender.get() not in ["Male", "Female"]:
+            tkMessageBox.showwarning('', 'Please select a valid entry_gender')
+            logger.error("Please select a valid entry_gender")
+            return
+
+        # Validate entry_age
+        try:
+            entry_age = int(entry_age.get())
+            if entry_age <= 0:
+                tkMessageBox.showwarning('', 'entry_age should be a positive integer')
+                logger.error("entry_age should be a positive integer")
+                return
+        except ValueError:
+            tkMessageBox.showwarning('', 'entry_age should be a positive integer')
+            logger.error("entry_age should be a positive integer")
+            return
+
+        # Validate Address Unit
+        '''
+        if not entry_address_unit.get().isalnum():
+            tkMessageBox.showwarning('', 'Address unit should contain alphanumeric characters')
+            return
+        '''
+        try:
+            unit_number = int(entry_address_unit.get())
+            if unit_number < 1:
+                tkMessageBox.showwarning('', 'Please enter valid address unit')
+                logger.error("Please enter valid address unit")
+                return
+        except ValueError:
+            tkMessageBox.showwarning('', 'Please enter valid address unit')
+            logger.error("Please enter valid address unit")
+            return
+        # Validate Address Civic
+        '''
+        if not entry_address_civic.get().isalnum():
+            tkMessageBox.showwarning('', 'Address civic should contain alphanumeric characters')
+            return
+        '''
+        try:
+            civic_number = int(entry_address_civic.get())
+            if civic_number < 1:
+                tkMessageBox.showwarning('', 'Please enter valid civic number')
+                logger.error("Please enter valid civic number")
+                return
+        except ValueError:
+            tkMessageBox.showwarning('', 'Please enter valid civic number')
+            logger.error("Please enter valid civic number")
+            return
+        if not entry_address_street.get():
+            tkMessageBox.showwarning('', 'Address street should not be empty')
+            logger.error("Address street should not be empty")
+            return
+
+        # Validate Address City
+        if not entry_address_city.get().isalpha():
+            tkMessageBox.showwarning('', 'Address city should contain only alphabetic characters')
+            logger.error("Address city should contain only alphabetic characters")
+            return
+
+        # Validate Address Province
+        if not re.match(r'^[A-Z]{2}$', entry_address_province.get()):
+            tkMessageBox.showwarning('', 'Address province should contain exactly two capital letters')
+            logger.error("Address province should contain exactly two capital letters")
+            return
+
+        # Validate Address Postal Code
+        postal_code_pattern = r'^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$'
+        if not re.match(postal_code_pattern, entry_address_postal_code.get()):
+            tkMessageBox.showwarning('', 'Invalid postal code format. Example: A1A 1A1')
+            logger.error("Invalid postal code format. Example: A1A 1A1")
+            return
+
+        # Validate entry_phone Number
+        phone_pattern = r'^\+1 \(\d{3}\) \d{3}-\d{4}$'
+        if not re.match(phone_pattern, entry_phone.get()):
+            tkMessageBox.showwarning('', 'Invalid entry_phone number format. Should be in the format +1 (xxx) xxx-xxxx')
+            logger.error("Invalid entry_phone number format. Should be in the format +1 (xxx) xxx-xxxx")
+            return
+
+        # Validate entry_email Address
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, entry_email.get()):
+            tkMessageBox.showwarning('', 'Invalid entry_email address')
+            logger.error("Invalid entry_email address")
+            return
+
+        # Validate entry_website URL
+        website_pattern = r'^(https?://)?(www\.)?([a-zA-Z0-9-]+)\.([a-zA-Z]{2,})(/[a-zA-Z0-9-]+)?$'
+        if not re.match(website_pattern, entry_website.get()):
+            tkMessageBox.showwarning('', 'Invalid entry_website URL')
+            logger.error("Invalid entry_website URL")
+            return
     tree.delete(*tree.get_children())
     conn = sqlite3.connect("contactManager.db")
     cursor = conn.cursor()
