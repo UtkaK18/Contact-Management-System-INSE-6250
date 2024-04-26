@@ -1,9 +1,10 @@
+import logging
 from tkinter import *
 import sqlite3
 import tkinter.ttk as ttk
 import tkinter.messagebox as tkMessageBox
 import re
-import logging
+import tkinter as tk
 
 logger = logging.getLogger()
 logging.basicConfig(format='%(asctime)s %(message)s', filename="ContactManager.log")
@@ -11,7 +12,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename="ContactManager.l
 def disable_event():
    pass
 
-def Logout():
+def Logout(root):
     logger.error("Logout function triggered")
     root.destroy()
 
@@ -53,129 +54,98 @@ def login_user():
         tkMessageBox.showinfo("Success", "Login successful")
         logger.error("Login successful")
         root_main.destroy()  # Close the current window
+        AfterLoginMethod()
 
 # Function to switch to registration form
 def show_register_form():
     logger.error("Show register form function triggered")
     login_frame.pack_forget()
-    register_frame.pack()
+    register_frame.pack(side='top')
 
 # Function to switch to login form
 def show_login_form():
     logger.error("Show login form function triggered")
     register_frame.pack_forget()
-    login_frame.pack()
+    login_frame.pack(side='top')
 
+
+def cancel():
+    root.destroy()
 # Create main window
 root_main = Tk()
-root_main.protocol("WM_DELETE_WINDOW", disable_event)
+root_main.config(bg="white")
+#root_main.protocol("WM_DELETE_WINDOW", disable_event)
 root_main.title("Login or Register")
-screen_width = root_main.winfo_screenwidth()
-screen_height = root_main.winfo_screenheight()
 
-root_main.geometry("%dx%d" % (screen_width,screen_height))
 
-# Frame for login form
-login_frame = Frame(root_main)
+def RegisterLoginPage():
+    global login_frame, username_entry, password_entry, register_frame, new_username_entry, new_password_entry, conn, cursor, root, FIRSTNAME, LASTNAME, GENDER, AGE, ADDRESS_UNIT, ADDRESS_CIVIC, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_PROVINCE, ADDRESS_POSTAL_CODE, PHONE, EMAIL, WEBSITE, mem_id
+    screen_width = root_main.winfo_screenwidth()
+    screen_height = root_main.winfo_screenheight()
+    root_main.geometry("%dx%d" % (screen_width, screen_height))
+    bgimg = tk.PhotoImage(file="ContactManagementSystem.png")
+    limg = Label(root_main, i=bgimg)
+    limg.pack()
+    login_frame = Frame(root_main, width=400, height=300, bg="white")
+    # Username label and entry for login
+    username_label = Label(login_frame, text="Username:", font=('arial italic', 15), bg="white")
+    username_label.grid(row=0, column=0, padx=20, pady=50)
+    username_entry = Entry(login_frame)
+    username_entry.grid(row=0, column=1, padx=20, pady=50)
+    # Password label and entry for login
+    password_label = Label(login_frame, text="Password:", font=('arial italic', 15), bg="white")
+    password_label.grid(row=1, column=0, padx=5, pady=5)
+    password_entry = Entry(login_frame, show="*")
+    password_entry.grid(row=1, column=1, padx=5, pady=5)
+    # Login button
+    login_button = Button(login_frame, text="Login", bg="#4CAF50", fg="white", padx=20, pady=10, command=login_user)
+    login_button.grid(row=2, columnspan=2, padx=5, pady=5)
+    # Register link
+    register_link = Label(login_frame, text="Register", fg="blue", cursor="hand2", bg="white")
+    register_link.grid(row=3, columnspan=2)
+    register_link.bind("<Button-1>", lambda e: show_register_form())
+    # Frame for registration form
+    register_frame = Frame(root_main, width=800, height=600, bg="white")
+    # New username label and entry for registration
+    new_username_label = Label(register_frame, text="New Username:", font=('arial italic', 15), bg="white")
+    new_username_label.grid(row=0, column=0, padx=20, pady=50)
+    new_username_entry = Entry(register_frame)
+    new_username_entry.grid(row=0, column=1, padx=20, pady=50)
+    # New password label and entry for registration
+    new_password_label = Label(register_frame, text="New Password:", font=('arial italic', 15), bg="white")
+    new_password_label.grid(row=1, column=0, padx=5, pady=5)
+    new_password_entry = Entry(register_frame, show="*")
+    new_password_entry.grid(row=1, column=1, padx=5, pady=5)
+    # Register button
+    register_button = Button(register_frame, text="Register", bg="#4CAF50", fg="white", padx=20, pady=10,
+                             command=register_user)
+    register_button.grid(row=2, columnspan=2, padx=5, pady=5)
+    # Login link
+    login_link = Label(register_frame, text="Login", fg="blue", cursor="hand2", bg="white")
+    login_link.grid(row=3, columnspan=2)
+    login_link.bind("<Button-1>", lambda e: show_login_form())
+    # Run the Tkinter event loop
+    '''
+    container = ttk.Frame(root_main, bg="yellow")
+    container.pack(padx=20, pady=50)
+    btn_container = ttk.Frame(container)
+    btn_container.pack(pady=20)
+    cancel_btn = ttk.Button(btn_container, text="Cancel", bg="#ccc", padx=20, pady=10, command=cancel)
+    cancel_btn.pack(side="right")
+    '''
+    # Connect to SQLite database
+    conn = sqlite3.connect("contactManager.db")
+    cursor = conn.cursor()
+    # Create users table if not exists
 
-# Username label and entry for login
-username_label = Label(login_frame, text="Username:")
-username_label.grid(row=0, column=0, padx=5, pady=5)
-username_entry = Entry(login_frame)
-username_entry.grid(row=0, column=1, padx=5, pady=5)
+    conn.commit()
+    # Initially show login form
+    show_login_form()
+    # Run the main event loop
+    root_main.mainloop()
 
-# Password label and entry for login
-password_label = Label(login_frame, text="Password:")
-password_label.grid(row=1, column=0, padx=5, pady=5)
-password_entry = Entry(login_frame, show="*")
-password_entry.grid(row=1, column=1, padx=5, pady=5)
 
-# Login button
-login_button = Button(login_frame, text="Login", command=login_user)
-login_button.grid(row=2, columnspan=2, padx=5, pady=5)
-
-# Register link
-register_link = Label(login_frame, text="Register", fg="blue", cursor="hand2")
-register_link.grid(row=3, columnspan=2)
-register_link.bind("<Button-1>", lambda e: show_register_form())
-
-# Frame for registration form
-register_frame = Frame(root_main)
-
-# New username label and entry for registration
-new_username_label = Label(register_frame, text="New Username:")
-new_username_label.grid(row=0, column=0, padx=5, pady=5)
-new_username_entry = Entry(register_frame)
-new_username_entry.grid(row=0, column=1, padx=5, pady=5)
-
-# New password label and entry for registration
-new_password_label = Label(register_frame, text="New Password:")
-new_password_label.grid(row=1, column=0, padx=5, pady=5)
-new_password_entry = Entry(register_frame, show="*")
-new_password_entry.grid(row=1, column=1, padx=5, pady=5)
-
-# Register button
-register_button = Button(register_frame, text="Register", command=register_user)
-register_button.grid(row=2, columnspan=2, padx=5, pady=5)
-
-# Login link
-login_link = Label(register_frame, text="Login", fg="blue", cursor="hand2")
-login_link.grid(row=3, columnspan=2)
-login_link.bind("<Button-1>", lambda e: show_login_form())
-
-# Connect to SQLite database
-conn = sqlite3.connect("contactManager.db")
-cursor = conn.cursor()
-
-# Create users table if not exists
-cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
-conn.commit()
-
-# Initially show login form
-show_login_form()
-
-# Run the main event loop
-root_main.mainloop()
-
-root = Tk()
-root.title("CONTACT LIST")
-root.protocol("WM_DELETE_WINDOW", disable_event)
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-
-root.geometry("%dx%d" % (screen_width,screen_height))
-root.config(bg="white")
-
-# ============================VARIABLES===================================
-FIRSTNAME = StringVar()
-LASTNAME = StringVar()
-GENDER = StringVar()
-AGE = StringVar()
-ADDRESS_UNIT = StringVar()
-ADDRESS_CIVIC = StringVar()
-ADDRESS_STREET = StringVar()
-ADDRESS_CITY = StringVar()
-ADDRESS_PROVINCE = StringVar()
-ADDRESS_POSTAL_CODE = StringVar()
-PHONE = StringVar()
-EMAIL = StringVar()
-WEBSITE = StringVar()
-mem_id = None  # Variable to store selected member ID for update
-
-# Entry fields for update window
-entry_firstname = None
-entry_lastname = None
-entry_gender = None
-entry_age = None
-entry_address_unit = None
-entry_address_civic = None
-entry_address_street = None
-entry_address_city = None
-entry_address_province = None
-entry_address_postal_code = None
-entry_phone = None
-entry_email = None
-entry_website = None
+#RegisterLoginPage()
 
 
 # ============================METHODS=====================================
@@ -186,16 +156,25 @@ def Database():
     cursor.execute(
         "CREATE TABLE IF NOT EXISTS `member` (mem_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, firstname TEXT, lastname TEXT, gender TEXT, age TEXT, address_unit TEXT, address_civic TEXT, address_street TEXT, address_city TEXT, address_province TEXT, address_postal_code TEXT, phone TEXT, email TEXT, website TEXT)"
     )
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
     cursor.execute("SELECT * FROM `member` ORDER BY `lastname` ASC")
-    fetch = cursor.fetchall()
-    for data in fetch:
-        tree.insert('', 'end', values=(data))
     cursor.close()
     conn.close()
 
     logger.error("Database function executed successfully")
 
-def SubmitData():
+def getStoredRecords():
+    logger.error("Database function triggered")
+    conn = sqlite3.connect("contactManager.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM `member` ORDER BY `lastname` ASC")
+    fetch = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    logger.error("Database function executed successfully")
+    return fetch
+
+def SubmitData(FIRSTNAME, LASTNAME, GENDER, AGE, ADDRESS_UNIT, ADDRESS_CIVIC, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_PROVINCE, ADDRESS_POSTAL_CODE, PHONE, EMAIL, WEBSITE):
     logger.error("SubmitData function triggered")
     if FIRSTNAME.get() == "" or LASTNAME.get() == "" or GENDER.get() == "" or AGE.get() == "" or ADDRESS_UNIT.get() == "" or ADDRESS_CIVIC.get() == "" or ADDRESS_STREET.get() == "" or ADDRESS_CITY.get() == "" or ADDRESS_PROVINCE.get() == "" or ADDRESS_POSTAL_CODE.get() == "" or PHONE.get() == "" or EMAIL.get() == "" or WEBSITE.get() == "":
         result = tkMessageBox.showwarning('', 'Please Complete The Required Field', icon="warning")
@@ -307,11 +286,11 @@ def SubmitData():
             logger.error("Invalid website URL")
             return
 
-        saveDataToDatabase()
+        saveDataToDatabase(FIRSTNAME, LASTNAME, GENDER, AGE, ADDRESS_UNIT, ADDRESS_CIVIC, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_PROVINCE, ADDRESS_POSTAL_CODE, PHONE, EMAIL, WEBSITE)
 
         logger.error("SubmitData function executed successfully")
 
-def saveDataToDatabase():
+def saveDataToDatabase(FIRSTNAME, LASTNAME, GENDER, AGE, ADDRESS_UNIT, ADDRESS_CIVIC, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_PROVINCE, ADDRESS_POSTAL_CODE, PHONE, EMAIL, WEBSITE):
     logger.error("saveDataToDatabase function triggered")
     tree.delete(*tree.get_children())
     conn = sqlite3.connect("contactManager.db")
@@ -352,13 +331,31 @@ def saveDataToDatabase():
 def get_selected_item():
     logger.error("get_selected_item function triggered")
     selected_item = tree.selection()
-    if selected_item:
+    if len(selected_item) != 0:
         item_text = tree.item(selected_item)['values'][0]
         logger.error(f"Selected item: {item_text}")
         return item_text
+    else:
+        tkMessageBox.showwarning('',"Select a record to update the information")
 
-def UpdateContact():
+
+def UpdateContact(root):
     logger.error("UpdateContact function triggered")
+    # ============================VARIABLES===================================
+    FIRSTNAME = StringVar()
+    LASTNAME = StringVar()
+    GENDER = StringVar()
+    AGE = StringVar()
+    ADDRESS_UNIT = StringVar()
+    ADDRESS_CIVIC = StringVar()
+    ADDRESS_STREET = StringVar()
+    ADDRESS_CITY = StringVar()
+    ADDRESS_PROVINCE = StringVar()
+    ADDRESS_POSTAL_CODE = StringVar()
+    PHONE = StringVar()
+    EMAIL = StringVar()
+    WEBSITE = StringVar()
+
     mem_id = get_selected_item()
     selectedRecord = getData(mem_id)
     member_id = selectedRecord[0]
@@ -578,7 +575,7 @@ def getData(mem_id):
     return selected_contact_data
 
 
-def AddNewWindow():
+def AddNewWindow(root):
     logger.error("AddNewWindow function triggered")
     global mem_id
     mem_id = None  # Reset mem_id when adding a new contact
@@ -586,6 +583,22 @@ def AddNewWindow():
     global NewWindow
     if 'NewWindow' in globals() and NewWindow:
         NewWindow.destroy()
+    # ============================VARIABLES===================================
+    FIRSTNAME = StringVar()
+    LASTNAME = StringVar()
+    GENDER = StringVar()
+    AGE = StringVar()
+    ADDRESS_UNIT = StringVar()
+    ADDRESS_CIVIC = StringVar()
+    ADDRESS_STREET = StringVar()
+    ADDRESS_CITY = StringVar()
+    ADDRESS_PROVINCE = StringVar()
+    ADDRESS_POSTAL_CODE = StringVar()
+    PHONE = StringVar()
+    EMAIL = StringVar()
+    WEBSITE = StringVar()
+    mem_id = None  # Variable to store selected member ID for update
+
 
     FIRSTNAME.set("")
     LASTNAME.set("")
@@ -675,10 +688,7 @@ def AddNewWindow():
 
     # ==================BUTTONS==============================
     btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
-                        command=SubmitData)
-    btn_addcon.grid(row=13, columnspan=2, pady=10)
-    btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
-                        command=SubmitData)
+                        command=lambda: SubmitData(FIRSTNAME, LASTNAME, GENDER, AGE, ADDRESS_UNIT, ADDRESS_CIVIC, ADDRESS_STREET, ADDRESS_CITY, ADDRESS_PROVINCE, ADDRESS_POSTAL_CODE, PHONE, EMAIL, WEBSITE))
     btn_addcon.grid(row=13, columnspan=2, pady=10)
     logger.error("AddNewWindow function executed successfully")
 
@@ -778,95 +788,99 @@ def updateData():
     btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
                         command=SubmitData)
     btn_addcon.grid(row=13, columnspan=2, pady=10)
-    #btn_addcon = Button(ContactForm, text="SAVE", font=('arial bold italic', 10), width=50, bg="Sky blue",
-    #                    command=SubmitData)
-    btn_addcon.grid(row=13, columnspan=2, pady=10)
     logger.error("updateData function executed successfully")
 
 
-# ============================FRAMES======================================
-Top = Frame(root, width=500, bd=1, relief=SOLID)
-Top.pack(side=TOP)
-Bottom = Frame(root, width=500, bd=1, relief=SOLID)
-Bottom.pack(side=BOTTOM)
-#Mid = Frame(root, width=500, bg="white")
-#Mid.pack(side=BOTTOM)
-Mid = Frame(Bottom, width=100)
-Mid.pack(side=LEFT)
-MidPadding = Frame(Bottom, width=500, bg="white")
-MidPadding.pack(side=LEFT)
-MidLeft = Frame(Bottom, width=100)
-MidLeft.pack(side=LEFT)
-MidLeftPadding = Frame(Bottom, width=500, bg="white")
-MidLeftPadding.pack(side=LEFT)
-MidRight = Frame(Bottom, width=100)
-MidRight.pack(side=RIGHT)
-TableMargin = Frame(root, width=500)
-TableMargin.pack(side=TOP)
-# ============================LABELS======================================
+def AfterLoginMethod():
+    root = Tk()
+    root.title("CONTACT LIST")
+    root.protocol("WM_DELETE_WINDOW", disable_event)
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    root.geometry("%dx%d" % (screen_width, screen_height))
+    root.config(bg="white")
+    # ============================FRAMES======================================
+    Top = Frame(root, width=500, bd=1, relief=SOLID)
+    Top.pack(side=TOP)
+    Bottom = Frame(root, width=500, bd=1, relief=SOLID)
+    Bottom.pack(side=BOTTOM)
+    # Mid = Frame(root, width=500, bg="white")
+    # Mid.pack(side=BOTTOM)
+    Mid = Frame(Bottom, width=100)
+    Mid.pack(side=LEFT)
+    MidPadding = Frame(Bottom, width=500, bg="white")
+    MidPadding.pack(side=LEFT)
+    MidLeft = Frame(Bottom, width=100)
+    MidLeft.pack(side=LEFT)
+    MidLeftPadding = Frame(Bottom, width=500, bg="white")
+    MidLeftPadding.pack(side=LEFT)
+    MidRight = Frame(Bottom, width=100)
+    MidRight.pack(side=RIGHT)
+    TableMargin = Frame(root, width=500)
+    TableMargin.pack(side=TOP)
 
-lbl_title = Label(Top, text="Contact Management System", font=('arial bold italic', 40), bg="Light grey", width=500)
-lbl_title.pack(fill=X)
+    # ============================LABELS======================================
+    lbl_title = Label(Top, text="Contact Management System", font=('arial bold italic', 40), bg="Light grey", width=500)
+    lbl_title.pack(fill=X)
 
-# ===============
-#
-# =============BUTTONS=====================================
+    # =============BUTTONS=====================================
+    btn_add = Button(MidLeft, text="ADD NEW", font=('Times New Roman italic', 13), bg="green", command=lambda: AddNewWindow(root))
+    btn_add.pack(side=BOTTOM)
+    btn_delete = Button(MidRight, text="DELETE", font=('Times New Roman italic', 13), bg="red", command=DeleteData)
+    btn_delete.pack(side=BOTTOM)
+    btn_update = Button(Mid, text="UPDATE", font=('Times New Roman italic', 13), bg="yellow", command=lambda: UpdateContact(root))
+    btn_update.pack(side=BOTTOM)
+    logout_button = Button(Top, text="LOGOUT", font=('Times New Roman italic', 9), bg="orange", command=lambda: Logout(root))
+    logout_button.pack(side=RIGHT)
+    # ============================TABLES======================================
+    scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
+    scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
+    global tree
+    tree = ttk.Treeview(TableMargin,
+                        columns=("ID", "FIRST NAME", "LAST NAME", "GENDER", "AGE", "ADDRESS UNIT", "ADDRESS CIVIC",
+                                 "ADDRESS STREET", "ADDRESS CITY", "ADDRESS PROVINCE", "ADDRESS POSTAL CODE", "PHONE",
+                                 "EMAIL", "WEBSITE"),
+                        height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
+    records = getStoredRecords()
+    for data in records:
+        tree.insert('', 'end', values=(data))
+    scrollbary.config(command=tree.yview)
+    scrollbary.pack(side=RIGHT, fill=Y)
+    scrollbarx.config(command=tree.xview)
+    scrollbarx.pack(side=BOTTOM, fill=X)
+    tree.heading('ID', text="ID", anchor=W)
+    tree.heading('FIRST NAME', text="FIRST NAME", anchor=W)
+    tree.heading('LAST NAME', text="LAST NAME", anchor=W)
+    tree.heading('GENDER', text="GENDER", anchor=W)
+    tree.heading('AGE', text="AGE", anchor=W)
+    tree.heading('ADDRESS UNIT', text="ADDRESS UNIT", anchor=W)
+    tree.heading('ADDRESS CIVIC', text="ADDRESS CIVIC", anchor=W)
+    tree.heading('ADDRESS STREET', text="ADDRESS STREET", anchor=W)
+    tree.heading('ADDRESS CITY', text="ADDRESS CITY", anchor=W)
+    tree.heading('ADDRESS PROVINCE', text="ADDRESS PROVINCE", anchor=W)
+    tree.heading('ADDRESS POSTAL CODE', text="ADDRESS POSTAL CODE", anchor=W)
+    tree.heading('PHONE', text="PHONE", anchor=W)
+    tree.heading('EMAIL', text="EMAIL", anchor=W)
+    tree.heading('WEBSITE', text="WEBSITE", anchor=W)
+    tree.column('#0', stretch=NO, minwidth=0, width=0)
+    tree.column('#1', stretch=NO, minwidth=0, width=80)
+    tree.column('#2', stretch=NO, minwidth=0, width=120)
+    tree.column('#3', stretch=NO, minwidth=0, width=120)
+    tree.column('#4', stretch=NO, minwidth=0, width=90)
+    tree.column('#5', stretch=NO, minwidth=0, width=80)
+    tree.column('#6', stretch=NO, minwidth=0, width=90)
+    tree.column('#7', stretch=NO, minwidth=0, width=90)
+    tree.column('#8', stretch=NO, minwidth=0, width=90)
+    tree.column('#9', stretch=NO, minwidth=0, width=90)
+    tree.column('#10', stretch=NO, minwidth=0, width=90)
+    tree.column('#11', stretch=NO, minwidth=0, width=150)
+    tree.column('#12', stretch=NO, minwidth=0, width=150)
+    tree.column('#13', stretch=NO, minwidth=0, width=150)
+    tree.pack()
+    tree.bind('<Double-Button-1>', OnSelected)
 
-btn_add = Button(MidLeft, text="ADD NEW", font=('Times New Roman italic', 13), bg="green", command=AddNewWindow)
-btn_add.pack(side=BOTTOM)
-btn_delete = Button(MidRight, text="DELETE", font=('Times New Roman italic', 13), bg="red", command=DeleteData)
-btn_delete.pack(side=BOTTOM)
-btn_update = Button(Mid, text="UPDATE", font=('Times New Roman italic', 13), bg="yellow", command=UpdateContact)
-btn_update.pack(side=BOTTOM)
-logout_button = Button(Top, text="LOGOUT",font=('Times New Roman italic', 9), bg="orange", command=Logout)
-logout_button.pack(side=RIGHT)
-
-
-
-# ============================TABLES======================================
-scrollbarx = Scrollbar(TableMargin, orient=HORIZONTAL)
-scrollbary = Scrollbar(TableMargin, orient=VERTICAL)
-tree = ttk.Treeview(TableMargin,
-                    columns=("ID", "FIRST NAME", "LAST NAME", "GENDER", "AGE", "ADDRESS UNIT", "ADDRESS CIVIC",
-                             "ADDRESS STREET", "ADDRESS CITY", "ADDRESS PROVINCE", "ADDRESS POSTAL CODE", "PHONE",
-                             "EMAIL", "WEBSITE"),
-                    height=400, selectmode="extended", yscrollcommand=scrollbary.set, xscrollcommand=scrollbarx.set)
-scrollbary.config(command=tree.yview)
-scrollbary.pack(side=RIGHT, fill=Y)
-scrollbarx.config(command=tree.xview)
-scrollbarx.pack(side=BOTTOM, fill=X)
-tree.heading('ID', text="ID", anchor=W)
-tree.heading('FIRST NAME', text="FIRST NAME", anchor=W)
-tree.heading('LAST NAME', text="LAST NAME", anchor=W)
-tree.heading('GENDER', text="GENDER", anchor=W)
-tree.heading('AGE', text="AGE", anchor=W)
-tree.heading('ADDRESS UNIT', text="ADDRESS UNIT", anchor=W)
-tree.heading('ADDRESS CIVIC', text="ADDRESS CIVIC", anchor=W)
-tree.heading('ADDRESS STREET', text="ADDRESS STREET", anchor=W)
-tree.heading('ADDRESS CITY', text="ADDRESS CITY", anchor=W)
-tree.heading('ADDRESS PROVINCE', text="ADDRESS PROVINCE", anchor=W)
-tree.heading('ADDRESS POSTAL CODE', text="ADDRESS POSTAL CODE", anchor=W)
-tree.heading('PHONE', text="PHONE", anchor=W)
-tree.heading('EMAIL', text="EMAIL", anchor=W)
-tree.heading('WEBSITE', text="WEBSITE", anchor=W)
-tree.column('#0', stretch=NO, minwidth=0, width=0)
-tree.column('#1', stretch=NO, minwidth=0, width=80)
-tree.column('#2', stretch=NO, minwidth=0, width=120)
-tree.column('#3', stretch=NO, minwidth=0, width=120)
-tree.column('#4', stretch=NO, minwidth=0, width=90)
-tree.column('#5', stretch=NO, minwidth=0, width=80)
-tree.column('#6', stretch=NO, minwidth=0, width=90)
-tree.column('#7', stretch=NO, minwidth=0, width=90)
-tree.column('#8', stretch=NO, minwidth=0, width=90)
-tree.column('#9', stretch=NO, minwidth=0, width=90)
-tree.column('#10', stretch=NO, minwidth=0, width=90)
-tree.column('#11', stretch=NO, minwidth=0, width=150)
-tree.column('#12', stretch=NO, minwidth=0, width=150)
-tree.column('#13', stretch=NO, minwidth=0, width=150)
-tree.pack()
-tree.bind('<Double-Button-1>', OnSelected)
 
 # ============================INITIALIZATION==============================
 if __name__ == '__main__':
     Database()
-    root_main.mainloop()
+    RegisterLoginPage()
